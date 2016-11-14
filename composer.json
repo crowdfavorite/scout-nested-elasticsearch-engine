@@ -1,0 +1,14 @@
+{
+    "name": "crowdfavorite/scout-nested-elasticsearch-engine",
+    "description": "Add nested search support for ElasticSearch and Scout",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Crowd Favorite",
+            "email": "crowdfavorite@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
