@@ -3,6 +3,7 @@
     "description": "Add nested search support for ElasticSearch and Scout",
     "type": "library",
     "license": "MIT",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "Crowd Favorite",
