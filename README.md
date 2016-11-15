@@ -5,7 +5,21 @@ Scout ES engine as it provides support for nested document where clauses.
 
 Via Composer: 
 
+Add the repository definition to your `composer.json` file: 
+
+``` 
+     "repositories": [
+     {
+       "type": "vcs",
+       "url": "https://github.com/crowdfavorite/scout-nested-elasticsearch-engine"
+     }
+    ],
+    "require" ...
+````
+
+
 `composer require crowdfavorite/scout-nested-elasticsearch-engine`
+`composer update -v`
 
 Add the service provider to `config/app.php` :
 
