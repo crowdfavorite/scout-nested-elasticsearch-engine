@@ -33,21 +33,23 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
 
             foreach ($options['filters'] as $field => $value) {
                 $type = isset($value['type']) ? $value['type'] : 'match';
-                if ( is_array($value)) {
+                if (is_array($value)) {
                     $value = isset($value['value']) ? $value['value'] : $value;
                 }
 
                 // Nested query
-                if(strpos($field, '.') !== false) {
+                if (strpos($field, '.') !== false) {
                     $path = substr($field, 0, strpos($field, '.'));
                     $paths[$path][] = [
                         'field' => $field,
                         'value' => $value,
                         'type' => $type,
                     ];
-                } elseif(is_numeric($value) || 'filter' == $type) {
+                }
+                elseif (is_numeric($value) || 'filter' == $type) {
                     $termFilters[ $field ] = $value;
-                } elseif(is_string($value)) {
+                }
+                elseif (is_string($value)) {
                     $matchQueries[] = [
                         'match' => [
                             $field => [
@@ -59,35 +61,35 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                 }
             }
 
-            if(!empty($paths)) {
+            if (!empty($paths)) {
                 foreach ($paths as $path => $path_data) {
                     $matches = [];
                     foreach ($path_data as $field_value) {
                         $type = $field_value['type'];
-                        if ( is_numeric($value) || 'filter' == $type) {
+                        if (is_numeric($value) || 'filter' == $type) {
                             $matches['terms'][] = [
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
-                        elseif('range' == $type) {
+                        elseif ('range' == $type) {
                             $matches['range'][] = [
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
-                        else{
+                        else {
                             $matches['match'][] = [
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
                     }
 
-                    if(!empty($matches['terms'])) {
+                    if (!empty($matches['terms'])) {
                         $nestedFilters[$path]['terms'] = $matches['terms'];
                     }
-                    if(!empty($matches['range'])) {
+                    if (!empty($matches['range'])) {
                         $nestedFilters[$path]['range'] = $matches['range'];
                     }
-                    if ( !empty($matches['match'])) {
+                    if (!empty($matches['match'])) {
                         $matchQueries[]['nested'] = [
                             'path' => $path,
                             'score_mode' => 'max',
@@ -103,8 +105,8 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
         }
 
         $searchQuery = [
-            'index' =>  $this->index,
-            'type'  =>  $query->model->searchableAs(),
+            'index' => $this->index,
+            'type'  => $query->model->searchableAs(),
             'body' => [
                 'query' => [
                     'filtered' => [
