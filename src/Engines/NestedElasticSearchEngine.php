@@ -47,7 +47,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                     ];
                 }
                 elseif (is_numeric($value) || 'filter' == $type) {
-                    $termFilters[ $field ] = $value;
+                    $termFilters[ $field ][] = $value;
                 }
                 elseif (is_string($value)) {
                     $matchQueries[] = [
@@ -121,14 +121,16 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             ],
         ];
 
+        $terms = array();
+        $nested = array();
+
         if (!empty($termFilters)) {
-            $searchQuery['body']['query']['filtered']['filter']['terms'] = $termFilters;
+            $terms = $termFilters;
         }
         if (!empty($nestedFilters)) {
-            $searchQuery['body']['query']['filtered']['filter']['nested'] = [];
             foreach ($nestedFilters as $path => $pathdata) {
-                $searchQuery['body']['query']['filtered']['filter']['nested']['path'] = $path;
-                $searchQuery['body']['query']['filtered']['filter']['nested']['filter'] = [
+                $nested['path'] = $path;
+                $nested['filter'] = [
                     'bool' => [
                         'must' => [
 
@@ -137,10 +139,21 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                 ];
                 foreach ($pathdata as $filter_type => $data) {
                     foreach($data as $datum) {
-                        $searchQuery['body']['query']['filtered']['filter']['nested']['filter']['bool']['must'][] = [$filter_type => $datum];
+                        $nested['filter']['bool']['must'][] = [$filter_type => $datum];
                     }
                 }
             }
+        }
+
+        if (!empty($terms) && !empty($nested)) {
+            $searchQuery['body']['query']['filtered']['filter']['bool']['must'][]['terms'] = $terms;
+            $searchQuery['body']['query']['filtered']['filter']['bool']['must'][]['nested'] = $nested;
+        }
+        else if (!empty($terms)) {
+            $searchQuery['body']['query']['filtered']['filter']['terms'] = $terms;
+        }
+        else if (!empty($nested)) {
+            $searchQuery['body']['query']['filtered']['filter']['nested'] = $nested;
         }
 
         if (array_key_exists('size', $options)) {
