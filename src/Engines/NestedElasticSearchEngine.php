@@ -24,7 +24,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             'match' => [
                 '_all' => [
                     'query' => $query->query,
-                    'fuzziness' => 1
+                    'fuzziness' => 0
                 ]
             ],
         ];
@@ -66,13 +66,18 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                     $matches = [];
                     foreach ($path_data as $field_value) {
                         $type = $field_value['type'];
-                        if (is_numeric($value) || 'filter' == $type) {
+                        if (is_numeric($field_value['value']) || 'filter' == $type) {
                             $matches['terms'][] = [
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
                         elseif ('range' == $type) {
                             $matches['range'][] = [
+                                $field_value['field'] => $field_value['value']
+                            ];
+                        }
+                        elseif ('main_query' == $type) {
+                            $mainQueries['nested'][$path][] = [
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
@@ -104,6 +109,30 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             }
         }
 
+        if (!empty($mainQueries)) {
+            foreach ($mainQueries as $type => $pathData) {
+
+                if ('nested' == $type) {
+                    foreach ($pathData as $path => $queryData) {
+                        $tmpQuery = [];
+                        $tmpQuery['path'] = $path;
+                        $tmpQuery['query'] = [
+                            'bool' => [
+                                'should' => []
+                            ]
+                        ];
+                        foreach ($queryData as $match) {
+                            $tmpQuery['query']['bool']['should'][] = [ 'match' => $match ];
+                        }
+
+                        if ( !empty($tmpQuery)) {
+                            $matchQueries[]['nested'] = $tmpQuery;
+                        }
+                    }
+                }
+            }
+        }
+
         $searchQuery = [
             'index' => $this->index,
             'type'  => $query->model->searchableAs(),
@@ -113,7 +142,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                         'filter' => [],
                         'query' => [
                             'bool' => [
-                                'must' => $matchQueries
+                                'should' => $matchQueries
                             ]
                         ],
                     ],
@@ -167,6 +196,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                 'from' => $options['from'],
             ]);
         }
+
         return $this->elasticsearch->search($searchQuery);
     }
 
