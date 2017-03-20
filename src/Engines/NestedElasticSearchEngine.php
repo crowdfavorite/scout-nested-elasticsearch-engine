@@ -20,14 +20,15 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
         $termFilters = [];
         $nestedFilters = [];
 
-        $matchQueries[] = [
-            'match' => [
+        $queryStrings[] = [
+            'query_string' => [
                 '_all' => [
                     'query' => $query->query,
                     'fuzziness' => 0
                 ]
             ],
         ];
+
 
         if (array_key_exists('filters', $options) && $options['filters']) {
 
@@ -50,7 +51,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                     $termFilters[ $field ][] = $value;
                 }
                 elseif (is_string($value)) {
-                    $matchQueries[] = [
+                    $queryStrings[] = [
                         'match' => [
                             $field => [
                                 'query' => $value,
@@ -76,9 +77,9 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                                 $field_value['field'] => $field_value['value']
                             ];
                         }
-                        elseif ('main_query' == $type) {
+                        elseif ('query_string' == $type) {
                             $mainQueries['nested'][$path][] = [
-                                $field_value['field'] => $field_value['value']
+                                $field_value['field'] => $field_value['value'].'*'
                             ];
                         }
                         else {
@@ -95,7 +96,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                         $nestedFilters[$path]['range'] = $matches['range'];
                     }
                     if (!empty($matches['match'])) {
-                        $matchQueries[]['nested'] = [
+                        $queryStrings[]['nested'] = [
                             'path' => $path,
                             'score_mode' => 'max',
                             'query' => [
@@ -122,11 +123,18 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                             ]
                         ];
                         foreach ($queryData as $match) {
-                            $tmpQuery['query']['bool']['should'][] = [ 'match' => $match ];
+                            foreach ($match as $key => $value ) {
+                                $tmpQuery['query']['bool']['should'][] = [
+                                    'query_string' => [
+                                        'default_field' => $key,
+                                        'query' => $value
+                                    ]
+                                ];
+                            }
                         }
 
                         if ( !empty($tmpQuery)) {
-                            $matchQueries[]['nested'] = $tmpQuery;
+                            $queryStrings[]['nested'] = $tmpQuery;
                         }
                     }
                 }
@@ -142,7 +150,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
                         'filter' => [],
                         'query' => [
                             'bool' => [
-                                'should' => $matchQueries
+                                'should' => $queryStrings
                             ]
                         ],
                     ],
