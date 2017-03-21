@@ -141,6 +141,11 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             }
         }
 
+        if (1 == count($queryStrings)) {
+            // Scout doesnt accept single element arrays
+            $queryStrings = array_shift($queryStrings);
+        }
+
         $searchQuery = [
             'index' => $this->index,
             'type'  => $query->model->searchableAs(),
