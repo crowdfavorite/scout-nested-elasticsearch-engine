@@ -1,13 +1,15 @@
+
+
 This Engine supports the ElasticSearch driver. It differs from the default
 Scout ES engine as it provides support for nested document where clauses.
 
-#Installation
+# Installation
 
-Via Composer: 
+Via Composer:
 
-Add the repository definition to your `composer.json` file: 
+Add the repository definition to your `composer.json` file:
 
-``` 
+```
      "repositories": [
      {
        "type": "vcs",
@@ -27,6 +29,6 @@ Add the service provider to `config/app.php` :
 
 Set `SCOUT_DRIVE=nestedelasticsearch` in your .env file
 
-#Usage
+# Usage
 
 `Contacts::search('John')->where('company.company_id', 1)->get()`
