@@ -3,7 +3,8 @@
 namespace CF\Scout\Engines;
 
 use Laravel\Scout\Builder;
-use Laravel\Scout\Engines\ElasticsearchEngine;
+use ScoutEngines\Elasticsearch\ElasticsearchEngine;
+
 
 class NestedElasticSearchEngine extends ElasticsearchEngine
 {
@@ -210,7 +211,7 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             ]);
         }
 
-        return $this->elasticsearch->search($searchQuery);
+        return $this->elastic->search($searchQuery);
     }
 
 }
