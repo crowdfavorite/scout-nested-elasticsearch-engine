@@ -202,6 +202,13 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
             ]);
         }
 
+        if (!empty($query->orders)) {
+            $searchQuery['sort'] = [];
+            foreach ($query->orders as $order) {
+                $searchQuery['sort'][] = "{$order['column']}:{$order['direction']}";
+            }
+        }
+
         return $this->elastic->search($searchQuery);
     }
 
