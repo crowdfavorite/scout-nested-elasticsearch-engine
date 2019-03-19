@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0",
-        "tamayo/laravel-scout-elastic": "^2.0"
+        "php": ">=7.2",
+        "tamayo/laravel-scout-elastic": "^4.0"
     },
     "autoload": {
         "psr-4": {
