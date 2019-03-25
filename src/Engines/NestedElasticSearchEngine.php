@@ -31,10 +31,10 @@ class NestedElasticSearchEngine extends ElasticsearchEngine
 
         if (array_key_exists('numericFilters', $options) && $options['numericFilters']) {
             foreach ($options['numericFilters'] as $i => $value) {
-                $field = key($value['match_phrase']);
-                $type = $value['match_phrase'][$field]['type'];
+                $field = key($value['terms']);
+                $type = $value['terms'][$field]['type'];
                 if (is_array($value)) {
-                    $value = isset($value['match_phrase'][$field]['value']) ? $value['match_phrase'][$field]['value'] : $value;
+                    $value = isset($value['terms'][$field]['value']) ? $value['terms'][$field]['value'] : $value;
 
                 }
 
