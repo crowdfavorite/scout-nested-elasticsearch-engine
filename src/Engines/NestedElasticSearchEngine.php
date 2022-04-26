@@ -3,7 +3,7 @@
 namespace CF\Scout\Engines;
 
 use Laravel\Scout\Builder;
-use ScoutEngines\Elasticsearch\ElasticsearchEngine;
+use Tamayo\LaravelScoutElastic\Engines\ElasticsearchEngine;
 
 class NestedElasticSearchEngine extends ElasticsearchEngine
 {
